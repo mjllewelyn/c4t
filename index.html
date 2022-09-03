@@ -1,1 +1,70 @@
-<h1>Hello</h1>
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="c4t.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <title>Connect 4 Takeover</title>
+  </head>
+<body>
+  <div class="divcenterofpage">
+    <div class="center">
+      <h1>Connect 4 Takeover</h1>
+      <p><a href="rules.html">Rules</a></p>
+      <div class="green buttonbox" id="playergreen" style="padding-top: 15px;">
+        <button onclick="shapeButton(1)" class="green circle" id="1"></button>
+        <button onclick="shapeButton(2)" class="green triangle" id="2"></button>
+        <button onclick="shapeButton(3)" class="green rectangle" id="3"></button>
+        <button onclick="shapeButton(4)" class="green square" id="4"></button>
+      </div>
+      <div class="green buttonbox" id="greenNumsBox">
+        <input class="green center" id="greenNums" type="text" readonly="true" value ="4         3         2         1" ></input>
+      </div>
+      <div class="buttonbox">
+        <button onclick="gridButton(11)" id="11"></button>
+        <button onclick="gridButton(21)" id="21"></button>
+        <button onclick="gridButton(31)" id="31"></button>
+        <button onclick="gridButton(41)" id="41"></button>
+        <button onclick="gridButton(51)" id="51"></button>
+      </div>
+      <div class="buttonbox">
+        <button onclick="gridButton(12)" id="12"></button>
+        <button onclick="gridButton(22)" id="22"></button>
+        <button onclick="gridButton(32)" id="32"></button>
+        <button onclick="gridButton(42)" id="42"></button>
+        <button onclick="gridButton(52)" id="52"></button>
+      </div>
+      <div class="buttonbox">
+        <button onclick="gridButton(13)" id="13"></button>
+        <button onclick="gridButton(23)" id="23"></button>
+        <button onclick="gridButton(33)" id="33"></button>
+        <button onclick="gridButton(43)" id="43"></button>
+        <button onclick="gridButton(53)" id="53"></button>
+      </div>
+      <div class="buttonbox">
+        <button onclick="gridButton(14)" id="14"></button>
+        <button onclick="gridButton(24)" id="24"></button>
+        <button onclick="gridButton(34)" id="34"></button>
+        <button onclick="gridButton(44)" id="44"></button>
+        <button onclick="gridButton(54)" id="54"></button>
+      </div>
+      <div class="buttonbox">
+        <button onclick="gridButton(15)" id="15"></button>
+        <button onclick="gridButton(25)" id="25"></button>
+        <button onclick="gridButton(35)" id="35"></button>
+        <button onclick="gridButton(45)" id="45"></button>
+        <button onclick="gridButton(55)" id="55"></button>
+      </div>
+      <div class="buttonbox" id="redNumsBox">
+        <input class="center" id="redNums" type="text" readonly="true" value ="4         3         2         1"></input>        
+      </div>
+      <div class="buttonbox" id="playerred" style="padding-top: 15px; padding-bottom: 20px;">
+        <button onclick="shapeButton(5)" class="red circle" id="5"></button>
+        <button onclick="shapeButton(6)" class="red triangle" id="6"></button>
+        <button onclick="shapeButton(7)" class="red rectangle" id="7"></button>
+        <button onclick="shapeButton(8)" class="red square" id="8"></button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

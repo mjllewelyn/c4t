@@ -1,0 +1,125 @@
+* {
+	background-color: darkslateblue;
+}
+
+h1 {
+	background-color: #fff;
+	color: darkblue;
+	padding-top: 15px;
+	font-size: 40px;
+	margin-bottom: 0;
+}
+
+h2 {
+	background-color: #fff;
+	color: darkblue;
+	padding-top: 10px;
+	font-size: 30px;
+	margin: 0;
+}
+
+p {
+	background-color: #fff;
+	color: darkblue;
+	font-size: 20px;
+	margin: 0;
+	padding-bottom: 15px;
+	padding-top: 5px;
+}
+
+button {
+	background-color: black;
+	font-size: 15px;
+	height: 75px;
+	width: 75px;
+	margin-right: 10px;
+}
+
+input {
+	background-color: white;
+	border: 0px;
+	font-size: 30px;
+	width: 60%;
+	color: darkblue;
+}
+
+a:link{
+	color: darkblue;
+	background-color: #fff;
+}
+
+a:visited{
+	color: darkblue;
+	background-color: #fff;
+}
+
+a:hover{
+	color: darkslateblue;
+	background-color: #fff;
+}
+
+a:active{
+	color: darkblue;
+	background-color: #fff;
+}
+
+.center {
+	text-align: center;
+	position: center;
+	margin: auto;
+}
+
+.divcenterofpage {
+	background-color: #fff;
+	position: center;
+	width: 600px;
+	height: 100%;
+	margin: auto;
+}
+
+.buttonbox {
+	background: #fff;
+	padding-top: 7.5px;
+	padding-bottom: 7.5px;
+}
+
+.green {
+	background-color: darkgreen;
+}
+
+.red {
+	background-color: #c00;
+}
+
+.circle {
+	background-image: url('circle.png');
+	background-repeat: no-repeat;
+	background-position: center; 
+}
+
+.triangle {
+	background-image: url('triangle.png');
+	background-repeat: no-repeat;
+	background-position: center; 
+}
+
+.rectangle {
+	background-image: url('rectangle.png');
+	background-repeat: no-repeat;
+	background-position: center; 
+}
+
+.square {
+	background-image: url('square.png');
+	background-repeat: no-repeat;
+	background-position: center; 
+}
+
+.select {
+	border: 5px solid black;
+}
+
+.rulestext {
+	padding-right: 15px;
+	padding-left:  15px;
+}
