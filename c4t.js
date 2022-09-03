@@ -236,7 +236,6 @@ function isTie() {
 		}
 	}
 	tie = true;
-	turns += "Tie";
 }
 
 function cleanup() {
