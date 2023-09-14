@@ -1,366 +1,487 @@
-var TurnEnum  = Object.freeze({"green": 1, "red": 2});
-var turn = TurnEnum.green;
-var spaces = "         ";
-var winner = false;
-var tie = false;
-var turnNumber = 1;
-var turnsCsv = "";
-var gameCsv = "";
-var endGame = false;
-var today = new Date();
-var date = (today.getMonth()+1)+'/'+today.getDate()+'/'+today.getFullYear()+' '+zeroPadding(today.getHours())+':'+zeroPadding(today.getMinutes())+':'+zeroPadding(today.getSeconds());
+$(document).ready(function() {
+  var turn = "green"
+  var selected = ""
+  var turnCount = 0
+  var winner = ""
+  var game = ""
+  var players = "2"
+  var aiBoard = makeArray(5)
 
-function zeroPadding(t) {
-	if (t < 10)
-	  return "0" + t;
-	else
-      return t
-}
+  $(".player-select").on("click", function() {
+    players = $(this).attr("id").split("-")[1]
+    if (players == "12"){
+      getAIMove()
+    }
+    $("#player-modal").hide()
+  })
 
-function gridButton(id) {
-	var shapeid = getShape();
-	if (winner)
-		declareWinner();
-	else if (tie)
-		alert("Tie game. Refresh to restart");
-	else if (checkShape(id, shapeid) && checkPiece()) {
-		removeClass(id);
-		assignColor(id);
-		assignShape(id, shapeid);
-		switchTurn();
-	}
-}
+  $(".open-rules").on("click", function() {
+    $("#rules-modal").show()
+  })
 
-function shapeButton(id) {
-	button = document.getElementById(id);
-	if (winner)
-	 	declareWinner();
-	else if (tie)
-		alert("Tie game. Refresh to restart");
-	else if ((turn == TurnEnum.green && button.classList.contains("red")) || (turn == TurnEnum.red && button.classList.contains("green")))
-		alert("Not your turn");
-	else {
-		pieces = getPieces(id);
-		if (isAvailiable(id, pieces)) {
-			removeGreenShapeClass();
-			removeRedShapeClass();
-			document.getElementById(id).classList.add("select");
-		}
-	}
-}
+  $(".closer").on("click", function() {
+    $(this).closest(".modal").hide()
+  })
 
-function checkPiece() {
-	var id = 0;
-	var select = false;
-	for (i = 1; i < 9; i++) {
-		if (document.getElementById(i).classList.contains("select")) {
-			select = true;
-			id = i;
-			break;
-		}
-	}
-	if (select) {
-		pieces = getPieces(id);
-		subtractPiece(id, pieces);
-		return true;
-	}
-	else
-		alert("Please select a piece");
-}
+  $(".player-pieces").on("click", function() {
+    if (gameIsOver())
+      return
 
-function subtractPiece(i, pieces) {
-	if (i > 4)
-		i -= 4;
-	pieces[i-1] -= 1;
-	str = (`${pieces[0]}${spaces}${pieces[1]}${spaces}${pieces[2]}${spaces}${pieces[3]}`);
-	if (turn == TurnEnum.green)
-		document.getElementById("greenNums").value = str;
-	else 
-		document.getElementById("redNums").value = str;
-}
+    if (!$(this).hasClass(turn)) {
+      alert("Not your turn")
+      return
+    }
 
-function getPieces(id) {
-	redNumbers = document.getElementById("redNums").value;
-	greenNumbers = document.getElementById("greenNums").value;
-	if (id > 4)
-		pieces = redNumbers.split(spaces);
-	else
-		pieces = greenNumbers.split(spaces);
-	return pieces;
-}
+    if (parseInt($("#"+$(this).attr('id') + "-left").text()) <= 0) {
+      alert("You are out of that piece")
+      return
+    }
 
-function isAvailiable(i, pieces) {
-	if (i > 4)
-		i -= 4;
-	if (pieces[i - 1] > 0) {
-		return true;
-	}
-	else 
-		alert("You're out of that piece");
-}
+    selected = $(this).attr('id')
+    $(".player-pieces").removeClass("select")
+    $(this).addClass("select")
+  })
 
-function getShape() {
-  for (i = 1; i < 9; i++)
-  	if (document.getElementById(i).classList.contains("select"))
-			return i;
-}
+  $(".grid-button").on("click", function() {
+    if (gameIsOver())
+      return
 
-function removeClass(id) {
-	document.getElementById(id).classList.remove("green");
-	document.getElementById(id).classList.remove("red");
-	document.getElementById(id).classList.remove("circle");
-	document.getElementById(id).classList.remove("triangle");
-	document.getElementById(id).classList.remove("rectangle");
-	document.getElementById(id).classList.remove("square");
-}
+    if (selected == "") {
+      alert("Please select a piece")
+      return
+    }
 
-function removeGreenShapeClass() {
-	document.getElementById(1).classList.remove("select");
-	document.getElementById(2).classList.remove("select");
-	document.getElementById(3).classList.remove("select");
-	document.getElementById(4).classList.remove("select");
-}
+    piece = selected.split("-")[1]
+    if (canTakePiece($(this), piece))
+    {
+      playPiece($(this), piece)
 
-function removeRedShapeClass() {
-	document.getElementById(5).classList.remove("select");
-	document.getElementById(6).classList.remove("select");
-	document.getElementById(7).classList.remove("select");
-	document.getElementById(8).classList.remove("select");
-}
+      if (winner == "" && players[0] == "1")
+        getAIMove()
+    }
+    else{
+      alert("You can't take that piece")
+    }
+  })
 
-function switchTurn() {
-	isWinner();
-	isTie();
-	if ((winner || tie) && !endGame){
-		if (winner)
-			if (turn == TurnEnum.green)
-				gameCsv += date + "," + turnNumber + ",1\n";
-			else
-				gameCsv += date + "," + turnNumber + ",2\n";
-		else
-			gameCsv += date + "," + turnNumber + ",0\n";
-		//saveGame(turnsCsv, gameCsv);
-		endGame = true;
-	}
-	if (winner) {
-		cleanup();
-		declareWinner();
-	}
-	else if (tie) {
-		cleanup();
-		alert("Tie game. Refresh to restart");
-	}
-	else if (turn == TurnEnum.green) {
-		turn = TurnEnum.red
-		document.getElementById("playergreen").classList.remove("green");
-		document.getElementById("greenNums").classList.remove("green");
-		document.getElementById("greenNumsBox").classList.remove("green");
-		removeGreenShapeClass();
-		document.getElementById("playerred").classList.add("red");
-		document.getElementById("redNums").classList.add("red");
-		document.getElementById("redNumsBox").classList.add("red");
-	}
-	else {
-		turn = TurnEnum.green
-		document.getElementById("playerred").classList.remove("red");
-		document.getElementById("redNums").classList.remove("red");
-		document.getElementById("redNumsBox").classList.remove("red");
-		removeRedShapeClass();
-		document.getElementById("playergreen").classList.add("green");
-		document.getElementById("greenNums").classList.add("green");
-		document.getElementById("greenNumsBox").classList.add("green");
-		turnNumber += 1;
-	}
-}
+  $("#undo").on("click", function() {
+    var undos = numUndos()
+    for (var i = 0; i < undos; i++) {
+      if (game.length > 0 && ((turnCount != 1 && players == "12") || players != "12")){
+        
+        var pos = game.substring(1,3)
+        var x = parseInt(pos[0]) - 1
+        var y = parseInt(pos[1]) - 1
+        btn = $("#"+pos)
+        piece = getFullPieceName(game[0])
 
-function assignColor(id) {
-	if (turn == TurnEnum.green) {
-		document.getElementById(id).classList.add("green");
-		turnsCsv += date + ',' + turnNumber + ",1,";
-	}
-	else {
-		document.getElementById(id).classList.add("red");
-		turnsCsv += date + ',' + turnNumber + ",2,";
-	}
-}
+        btn.removeClass(piece)
+        game = game.substring(3)
 
-function checkShape(i, shapeid) {
-	if (shapeid > 4)
-		shapeid -= 4;
-	var gridbutton = document.getElementById(i);
-	var canTake = true;
-	if (gridbutton.classList.contains("square") || (gridbutton.classList.contains("rectangle") && shapeid < 4) || (gridbutton.classList.contains("triangle") && shapeid < 3) || (gridbutton.classList.contains("circle") && shapeid == 1))
-		canTake = false;
-	if(!canTake)
-		alert("You can't take that piece");
-	return canTake;		
-}
+        $(".player-pieces").removeClass("select")
+        btn.removeClass("red green")
+        selected = ""
 
-function assignShape(i, shapeid) {
-	if (shapeid > 4)
-		shapeid -= 4;
-	var gridbutton = document.getElementById(i);
-	switch (shapeid) {
-		case 1: gridbutton.classList.add("circle");
-		        turnsCsv += "1,"
-			break;
-		case 2: gridbutton.classList.add("triangle");
-		        turnsCsv += "2,"
-			break;
-		case 3: gridbutton.classList.add("rectangle");
-		        turnsCsv += "3,"
-			break;
-		case 4: gridbutton.classList.add("square");
-		        turnsCsv += "4,";
-			break;
-	}
-	turnsCsv += parseInt(i.toString().substring(0,1), 10)-1 + "," + (parseInt(i.toString().substring(1,2), 10)-1).toString() + "\n";
-}
+        if (btn.hasClass("circle") || btn.hasClass("triangle") || btn.hasClass("rectangle")){
+          if (btn.hasClass("own-piece-"+piece) || winner != ""){
+            btn.addClass(turn == "green" ? "red" : "green").removeClass("own-piece-"+piece)
+          }
+          else
+            btn.addClass(turn)
+        }
+        else {
+          btn.addClass("none")
+        }
 
-function isTie() {
-	var greenPieces = getPieces(1);
-	var redPieces = getPieces(5);
-	for (i = 1; i < 9; i++) {
-		if (i > 4) {
-			var id = i - 4;
-  		if (redPieces[id -1] > 0){
-  			tie = false;
-  			return;
-  		}
-		}
-		else {
-			if (greenPieces[id - 1] > 0){
-				tie = false;
-  			return;
-			}
-		}
-	}
-	tie = true;
-}
+        if (aiBoard[x][y].split("|").length == 1)
+          aiBoard[x][y] = ""
+        else {
+          var prevMoves = aiBoard[x][y].split("|")[1]
+          var mostRecent = prevMoves.split(";")[0]
+          var newPiece = (mostRecent[0] == "g" ? "green-" : "red-") + getFullPieceName(mostRecent[1])
+          aiBoard[x][y] = prevMoves.length < 3 ? newPiece : newPiece + "|" + prevMoves.substring(3)
+        }
 
-function cleanup() {
-	removeGreenShapeClass();
-	removeRedShapeClass();
-	document.getElementById("playergreen").classList.remove("green");
-	document.getElementById("greenNums").classList.remove("green");
-	document.getElementById("greenNumsBox").classList.remove("green");
-	document.getElementById("playerred").classList.remove("red");
-	document.getElementById("redNums").classList.remove("red");
-	document.getElementById("redNumsBox").classList.remove("red");
-}
+        turnCount--
+        $("#player-"+turn+",.pieces-left-"+turn).removeClass(turn + " winner")
+        if (winner == "")
+          turn = turn == "green" ? "red" : "green"
+        winner = ""
+        $("#player-"+turn+",.pieces-left-"+turn).addClass(turn)
+        $("#"+ turn + "-" + piece + "-left").text(parseInt($("#"+ turn + "-" + piece + "-left").text()) + 1)
+      }
+    }
+  })
 
-function isWinner(){
-	if (turn == TurnEnum.green)
-		var color = "green";
-	else
-		var color = "red";
-	winner = checkHorizontal(color) || checkVertical(color) || checkFrontSlash(color) || checkBackSlash(color);
-}
+  function canTakePiece($btn, piece) {
+    return $btn.hasClass("none") ||
+        (piece == "square" && !$btn.hasClass("square")) ||
+        (piece == "rectangle" && (!$btn.hasClass("square") && !$btn.hasClass("rectangle"))) ||
+        (piece == "triangle" && $btn.hasClass("circle"))
+  }
 
-function checkHorizontal(color) {
-	var count = 0;
-	for (i = 11; i < 16; i++){
-		count = 0;
-		for (j = i; j < 50; j += 10){
-			if (document.getElementById(j).classList.contains(color))
-				count += 1;
-			if (count == 4)
-				return true;
-		}
-		count = 0;
-		for (k = i + 10; k < 60; k += 10) {
-			if (document.getElementById(k).classList.contains(color))
-				count += 1;
-			if (count == 4)
-				return true;
-		}
-	}
-	return false;
-}
+  function canTakeBoardPiece(x, y, piece) {
+    return aiBoard[x][y] == "" ||
+        (piece == "square" && !aiBoard[x][y].includes("square")) ||
+        (piece == "rectangle" && (!aiBoard[x][y].includes("square") && !aiBoard[x][y].includes("rectangle"))) ||
+        (piece == "triangle" && aiBoard[x][y].includes("circle"))
+  }
 
-function checkVertical(color) {
-	var count = 0;
-	for (i = 11; i < 60; i += 10){
-		count = 0;
-		for (j = i; j < i + 4; j += 1){
-			if (document.getElementById(j).classList.contains(color))
-				count += 1;
-			if (count == 4)
-				return true;
-		}
-		count = 0;
-		for (k = i + 1; k < i + 5; k += 1) {
-			if (document.getElementById(k).classList.contains(color))
-				count += 1;
-			if (count == 4)
-				return true;
-		}
-	}
-	return false;
-}
+  function playPiece($btn, piece) {
+    if ($btn.hasClass(turn))
+      $btn.addClass("own-piece-"+piece)
+    $btn.removeClass("none red green").addClass(piece + " " + turn)
+    game = piece[0]+$btn.attr("id") + game
+    var x = parseInt($btn.attr("id")[0])-1
+    var y = parseInt($btn.attr("id")[1])-1
+    if (aiBoard[x][y].includes("red"))
+      if (aiBoard[x][y].split("|").length > 1)
+        aiBoard[x][y] = turn + "-" + piece + "|r" + aiBoard[x][y].split("-")[1][0] + ";" + aiBoard[x][y].split("|")[1]
+      else
+        aiBoard[x][y] = turn + "-" + piece + "|r" + aiBoard[x][y].split("-")[1][0]
+    else if (aiBoard[x][y].includes("green"))
+      if (aiBoard[x][y].split("|").length > 1)
+        aiBoard[x][y] = turn + "-" + piece + "|g" + aiBoard[x][y].split("-")[1][0] + ";" + aiBoard[x][y].split("|")[1]
+      else
+        aiBoard[x][y] = turn + "-" + piece + "|g" + aiBoard[x][y].split("-")[1][0]
+    else
+      aiBoard[x][y] = turn + "-" + piece
 
-function checkFrontSlash(color) {
-	var count = 0;
-	var timesthrough = 0;
-	var num = 11;
-	while (timesthrough != 4) {
-		count = 0;
-		for (i = num; i < num + 40; i+= 11) {
-			if (document.getElementById(i).classList.contains(color))
-				count += 1;
-			if (count == 4)
-				return true;
-		}
-		timesthrough += 1;
-		if (timesthrough == 1)
-			num = 12;
-		else if (timesthrough == 2)
-			num = 21;
-		else
-			num = 22;
-	}
-	return false;
-}
+    $("#"+selected+ "-left").text(parseInt($("#"+selected+ "-left").text()) - 1)
+    $(".player-pieces").removeClass("select")
+    selected = ""
 
-function checkBackSlash(color) {
-	var count = 0;
-	var timesthrough = 0;
-	var num = 14;
-	while (timesthrough != 4) {
-		count = 0;
-		for (i = num; i < num + 30; i+= 9) {
-			if (document.getElementById(i).classList.contains(color))
-				count += 1;
-			if (count == 4)
-				return true;
-		}
-		timesthrough += 1;
-		if (timesthrough == 1)
-			num = 15;
-		else if (timesthrough == 2)
-			num = 24;
-		else
-			num = 25;
-	}
-	return false;
-}
+    turnCount++
+    $("#player-"+turn+",.pieces-left-"+turn).removeClass(turn)
+    if (gameIsOver($btn.attr("id"))){
+      return
+    }
+    else {
+      turn = turn == "green" ? "red" : "green"
+      $("#player-"+turn+",.pieces-left-"+turn).addClass(turn)
+    }
+  }
 
-function declareWinner() {
-	if (turn == TurnEnum.green)
-		alert("Green Wins! Refresh to restart");
-	else
-		alert("Red Wins! Refresh to restart");
-}
+  function getFullPieceName(piece){
+    switch (piece){
+      case "s" : return "square"; break;
+      case "r" : return "rectangle"; break;
+      case "t" : return "triangle"; break;
+      case "c" : return "circle"; break;
+    }
+    return ""
+  }
 
-// function saveGame(turns, game) {
-//   $.ajax({
-//     url:'c4t.php',
-//     type: "POST",
-//     dataType:'json',
-//     data: ({turn: turns, gm: game}),
-//     success:function(data)
-//     {
-//       alert("Success!");
-//     }
-//   });
-// }
+  function numUndos(){
+    if (players == "2" || 
+        players == "11" && winner == "green" ||
+        players == "12" && winner == "red")
+      return 1
+    return 2
+  }
+
+  function gameIsOver(btnId) {
+    if (winner != "" || checkBtnWinner(btnId)){
+      winner = turn
+      $("#player-"+turn+",.pieces-left-"+turn).addClass("winner")
+      alert((turn == "green" ? "Green" : "Red") + " Wins! Refresh to restart")
+      return true
+    }
+    if (winner == "tie" || turnCount == 20){
+      winner == "tie"
+      alert("Tie game")
+      return true
+    }
+
+    return false
+  }
+
+  function checkBtnWinner(btnId) {
+    if (btnId == null || btnId == undefined)
+      return false
+
+    var btnX = parseInt(btnId[0])
+    var btnY = parseInt(btnId[1])
+
+    //horizontal
+    var x = 1
+    var y = btnY
+    if (($("#"+x+y).hasClass(turn) && $("#"+(x+1)+y).hasClass(turn) && $("#"+(x+2)+y).hasClass(turn) && $("#"+(x+3)+y).hasClass(turn)) ||
+       ($("#"+(x+1)+y).hasClass(turn) && $("#"+(x+2)+y).hasClass(turn) && $("#"+(x+3)+y).hasClass(turn) && $("#"+(x+4)+y).hasClass(turn)))
+      return true
+
+    //vertial
+    x = btnX
+    y = 1
+    if (($("#"+x+y).hasClass(turn) && $("#"+x+(y+1)).hasClass(turn) && $("#"+x+(y+2)).hasClass(turn) && $("#"+x+(y+3)).hasClass(turn)) ||
+       ($("#"+x+(y+1)).hasClass(turn) && $("#"+x+(y+2)).hasClass(turn) && $("#"+x+(y+3)).hasClass(turn) && $("#"+x+(y+4)).hasClass(turn)))
+      return true
+
+    //backslash /
+    x = btnX
+    y = btnY
+    while (x < 5 || y > 1){
+      x += 1
+      y -= 1
+    }
+
+    if (x > 3 && y < 3){
+      if ($("#"+x+y).hasClass(turn) && $("#"+(x-1)+(y+1)).hasClass(turn) && $("#"+(x-2)+(y+2)).hasClass(turn) && $("#"+(x-3)+(y+3)).hasClass(turn))
+        return true
+      if (x == 5 && y == 1 && $("#"+(x-1)+(y+1)).hasClass(turn) && $("#"+(x-2)+(y+2)).hasClass(turn) && $("#"+(x-3)+(y+3)).hasClass(turn) && $("#"+(x-4)+(y+4)).hasClass(turn))
+        return true
+    }
+
+    //forwardslash \
+    x = btnX
+    y = btnY
+    while (y > 1 || x > 1){
+      x -= 1
+      y -= 1
+    }
+
+    if (x < 3 && y < 3){
+      if ($("#"+x+y).hasClass(turn) && $("#"+(x+1)+(y+1)).hasClass(turn) && $("#"+(x+2)+(y+2)).hasClass(turn) && $("#"+(x+3)+(y+3)).hasClass(turn))
+        return true
+      if (x == 1 && y == 1 && $("#"+(x+1)+(y+1)).hasClass(turn) && $("#"+(x+2)+(y+2)).hasClass(turn) && $("#"+(x+3)+(y+3)).hasClass(turn) && $("#"+(x+4)+(y+4)).hasClass(turn))
+        return true
+    }
+
+    return false
+  }
+
+  function checkBoardWinner(color){
+    //horizontal
+    var x = 0
+    for (var y = 0; y < 5; y++){
+      if ((aiBoard[x][y].includes(color) && aiBoard[x+1][y].includes(color) && aiBoard[x+2][y].includes(color) && aiBoard[x+3][y].includes(color)) ||
+        (aiBoard[x+1][y].includes(color) && aiBoard[x+2][y].includes(color) && aiBoard[x+3][y].includes(color) && aiBoard[x+4][y].includes(color)))
+      return true
+    }
+
+    //vertical
+    y = 0
+    for (x = 0; x < 5; x++){
+      if ((aiBoard[x][y].includes(color) && aiBoard[x][y+1].includes(color) && aiBoard[x][y+2].includes(color) && aiBoard[x][y+3].includes(color)) ||
+        (aiBoard[x][y+1].includes(color) && aiBoard[x][y+2].includes(color) && aiBoard[x][y+3].includes(color) && aiBoard[x][y+4].includes(color)))
+        return true
+    }
+
+    //backslash /
+    x = 3
+    y = 0
+    while (x != 2){
+      if ((aiBoard[x][y].includes(color) && aiBoard[x-1][y+1].includes(color) && aiBoard[x-2][y+2].includes(color) && aiBoard[x-3][y+3].includes(color)))
+        return true
+      if (x == 3 && y != 1)
+        x = 4
+      else if (x == 4){
+        x = 3
+        y = 1
+      }
+      else
+        x = 2
+    }
+
+
+    //forwardslash \
+    x = 0
+    y = 0
+    while (y != 2){
+      if ((aiBoard[x][y].includes(color) && aiBoard[x+1][y+1].includes(color) && aiBoard[x+2][y+2].includes(color) && aiBoard[x+3][y+3].includes(color)))
+        return true
+      if (y == 0 && x != 1)
+        y = 1
+      else if (y == 1){
+        x = 1
+        y = 0
+      }
+      else
+        y = 2
+    }
+
+    return false;
+  }
+
+  function getAIMove(){
+    var aiPiecesLeft = new Map()
+    var playerPiecesLeft = new Map()
+    var aiMostPowerfulLeft = "circle"
+    var playerMostPowerfulLeft = "circle"
+    const pieces = ['circle','triangle','rectangle','square'];
+    const oppTurn = turn == "green" ? "red" : "green"
+
+    pieces.forEach(function(piece) {
+      aiPiecesLeft.set(piece, $("#"+turn+"-"+piece+"-left").text())
+      playerPiecesLeft.set(piece, $("#"+oppTurn+"-"+piece+"-left").text())
+    })
+    aiMostPowerfulLeft = getMostPowerfulLeft(aiPiecesLeft)
+    playerMostPowerfulLeft = getMostPowerfulLeft(playerPiecesLeft)
+    var finalPiece = aiMostPowerfulLeft
+    var finalX = -1
+    var finalY = -1
+    var possible = []
+
+    // get all possible moves and check for win
+    for (var x = 0; x < 5 && finalX == -1; x++){
+      for (var y = 0; y < 5 && finalX == -1; y++){
+        pieces.forEach(function(piece){
+          if (aiPiecesLeft.get(piece) != 0 && canTakeBoardPiece(x, y, piece)){
+            if (piece == aiMostPowerfulLeft){
+              possible.push(x+y.toString())
+              var previousPiece = aiBoard[x][y]
+              aiBoard[x][y] = turn + "-" + piece
+              if (checkBoardWinner(turn)){
+                finalX = x
+                finalY = y
+                finalPiece = piece
+              }
+              aiBoard[x][y] = previousPiece
+            }
+          }
+        })
+      }
+    }
+    //console.log("check for win; X: " + finalX + "; Y: " + finalY + "; piece: " + finalPiece)
+
+    //check opponent 3 in a row
+    for (var x = 0; x < 5 && finalX == -1; x++){
+      for (var y = 0; y < 5 && finalX == -1; y++){
+        if (canTakeBoardPiece(x, y, playerMostPowerfulLeft)){
+          var previousPiece = aiBoard[x][y]
+          aiBoard[x][y] = oppTurn + "-" + playerMostPowerfulLeft
+          if (checkBoardWinner(oppTurn)){
+            var pos = getOppThreeInARow(x,y, oppTurn)
+            for (var i = 0; i < 3 && finalX == -1; i++){
+              testX = parseInt(pos[i][0])
+              testY = parseInt(pos[i][1])
+              if (canTakeBoardPiece(testX,testY,aiMostPowerfulLeft)){
+                finalX = testX
+                finalY = testY
+                finalPiece = getLeastPowerful(testX, testY, aiPiecesLeft)
+              }
+            }
+            if (finalX == -1 && canTakeBoardPiece(x,y,aiMostPowerfulLeft)){
+              finalX = x
+              finalY = y
+              finalPiece = getLeastPowerful(x, y, aiPiecesLeft)
+            }
+          }
+            aiBoard[x][y] = previousPiece
+        }
+      }
+    }
+    //console.log("block; X: " + finalX + "; Y: " + finalY + "; piece: " + finalPiece)
+
+    //otherwise random prioritize center
+    if (finalX == -1){
+      var new_possible = []
+      possible.forEach(function(pos) {
+        var x = parseInt(pos[0])
+        var y = parseInt(pos[1])
+        if (x > 0 && x < 4 && y > 0 && y < 4 && !aiBoard[x][y].includes(turn)){
+          new_possible.push(x+y.toString())
+        }
+      })
+      if (new_possible.length > 0)
+        possible = new_possible
+      var move = possible[Math.floor(Math.random()*possible.length)]
+      if (move != ""){
+        finalX = parseInt(move[0])
+        finalY = parseInt(move[1])
+        finalPiece = getLeastPowerful(finalX, finalY, aiPiecesLeft)
+      }
+    }
+
+    var $btn = $("#"+(finalX+1)+(finalY+1))
+    if (canTakePiece($btn, finalPiece)){
+      selected = turn + "-" + finalPiece
+      playPiece($btn, finalPiece)
+    }
+    else {
+      console.log("Something went wrong; X: " + finalX + "; Y: " + finalY + "; piece: " + finalPiece + "; btn: ")
+      console.log($btn)
+    }
+  }
+
+  function getMostPowerfulLeft(pieces){
+    if (pieces.get("square") != "0")
+      return "square"
+    if (pieces.get("rectangle") != "0")
+      return "rectangle"
+    if (pieces.get("triangle") != "0")
+      return "triangle"
+    return "circle"
+  }
+
+  function getLeastPowerful(x, y, pieces){
+    if (aiBoard[x][y] == "" && pieces.get("circle") != "0")
+      return "circle"
+    if ((aiBoard[x][y] == "" || aiBoard[x][y].includes("circle")) && pieces.get("triangle") != "0")
+      return "triangle"
+    if (!aiBoard[x][y].includes("rectangle") && pieces.get("rectangle") != "0")
+      return "rectangle"
+    return "square"
+  }
+
+  function getOppThreeInARow(x,y,oppTurn){
+    //north
+    if (y > 2 && aiBoard[x][y-1].includes(oppTurn) && aiBoard[x][y-2].includes(oppTurn) && aiBoard[x][y-3].includes(oppTurn))
+      return [(x)+(y-2).toString(), (x)+(y-1).toString(), (x)+(y-3).toString()]
+    if ((y == 2 || y == 3) && aiBoard[x][y-1].includes(oppTurn) && aiBoard[x][y-2].includes(oppTurn) && aiBoard[x][y+1].includes(oppTurn))
+      return [(x)+(y-1).toString(), (x)+(y+1).toString(), (x)+(y-2).toString()]
+
+    //northeast
+    if (x < 2 && y > 2 && aiBoard[x+1][y-1].includes(oppTurn) && aiBoard[x+2][y-2].includes(oppTurn) && aiBoard[x+3][y-3].includes(oppTurn))
+      return [(x+2)+(y-2).toString(), (x+1)+(y-1).toString(), (x+3)+(y-3).toString()]
+    if ((x == 1 || x == 2) && (y == 2 || y == 3) && aiBoard[x+1][y-1].includes(oppTurn) && aiBoard[x+2][y-2].includes(oppTurn) && aiBoard[x-1][y+1].includes(oppTurn))
+      return [(x+1)+(y-1).toString(), (x-1)+(y+1).toString(), (x+2)+(y-2).toString()]
+
+    //east
+    if (x < 2 && aiBoard[x+1][y].includes(oppTurn) && aiBoard[x+2][y].includes(oppTurn) && aiBoard[x+3][y].includes(oppTurn))
+      return [(x+2)+(y).toString(), (x+1)+(y).toString(), (x+3)+(y).toString()]
+    if ((x == 1 || x == 2) && aiBoard[x+1][y].includes(oppTurn) && aiBoard[x+2][y].includes(oppTurn) && aiBoard[x-1][y].includes(oppTurn))
+      return [(x+1)+(y).toString(), (x-1)+(y).toString(), (x+2)+(y).toString()]
+
+    //southeast
+    if (x < 2 && y < 2 && aiBoard[x+1][y+1].includes(oppTurn) && aiBoard[x+2][y+2].includes(oppTurn) && aiBoard[x+3][y+3].includes(oppTurn))
+      return [(x+2)+(y+2).toString(), (x+1)+(y+1).toString(), (x+3)+(y+3).toString()]
+    if ((x == 1 || x == 2) && (y == 1 || y == 2) && aiBoard[x+1][y+1].includes(oppTurn) && aiBoard[x+2][y+2].includes(oppTurn) && aiBoard[x-1][y-1].includes(oppTurn))
+      return [(x+1)+(y+1).toString(), (x-1)+(y-1).toString(), (x+2)+(y+2).toString()]
+
+    //south
+    if (y < 2 && aiBoard[x][y+1].includes(oppTurn) && aiBoard[x][y+2].includes(oppTurn) && aiBoard[x][y+3].includes(oppTurn))
+      return [(x)+(y+2).toString(), (x)+(y+1).toString(), (x)+(y+3).toString()]
+    if ((y == 1 || y == 2) && aiBoard[x][y+1].includes(oppTurn) && aiBoard[x][y+2].includes(oppTurn) && aiBoard[x][y-1].includes(oppTurn))
+      return [(x)+(y+1).toString(), (x)+(y-1).toString(), (x)+(y+2).toString()]
+
+    //southwest
+    if (x > 2 && y < 2 && aiBoard[x-1][y+1].includes(oppTurn) && aiBoard[x-2][y+2].includes(oppTurn) && aiBoard[x-3][y+3].includes(oppTurn))
+      return [(x-2)+(y+2).toString(),(x-1)+(y+1).toString(),(x-3)+(y+3).toString()]
+    if ((x == 2 || x == 3) && (y == 1 || y == 2) && aiBoard[x-1][y+1].includes(oppTurn) && aiBoard[x-2][y+2].includes(oppTurn) && aiBoard[x+1][y-1].includes(oppTurn))
+      return [(x-1)+(y+1).toString(),(x+1)+(y-1).toString(),(x-2)+(y+2).toString()]
+
+    //west
+    if (x > 2 && aiBoard[x-1][y].includes(oppTurn) && aiBoard[x-2][y].includes(oppTurn) && aiBoard[x-3][y].includes(oppTurn))
+      return [(x-2)+(y).toString(), (x-1)+(y).toString(), (x-3)+(y).toString()]
+    if ((x == 2 || x == 3) && aiBoard[x-1][y].includes(oppTurn) && aiBoard[x-2][y].includes(oppTurn) && aiBoard[x+1][y].includes(oppTurn))
+      return [(x-1)+(y).toString(), (x+1)+(y).toString(), (x-2)+(y).toString()]
+
+    //northwest
+    if (x > 2 && y > 2 && aiBoard[x-1][y-1].includes(oppTurn) && aiBoard[x-2][y-2].includes(oppTurn) && aiBoard[x-3][y-3].includes(oppTurn))
+      return [(x-2)+(y-2).toString(), (x-1)+(y-1).toString(), (x-3)+(y-3).toString()]
+    if ((x == 2 || x == 3) && (y == 2 || y == 3) && aiBoard[x-1][y-1].includes(oppTurn) && aiBoard[x-2][y-2].includes(oppTurn) && aiBoard[x+1][y+1].includes(oppTurn))
+      return [(x-1)+(y-1).toString(), (x+1)+(y+1).toString(), (x-2)+(y-2).toString()]
+  }
+
+  function makeArray(dim) {
+    var arr = [];
+    for(let i = 0; i < dim; i++) {
+        arr[i] = [];
+        for(let j = 0; j < dim; j++) {
+            arr[i][j] = "";
+        }
+    }
+    return arr;
+  }
+});

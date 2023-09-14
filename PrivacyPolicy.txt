@@ -1,4 +1,4 @@
 Connect 4 Takeover Privacy Policy
 
 Connect 4 Takeover is a simple game that does not collect any user information.
-The user will click on buttons to play the game. During and after playing the game, no data is collected.
+The game is played using JavaScript in the browser where the user will click on buttons to play the game. During and after playing the game, no data is collected.

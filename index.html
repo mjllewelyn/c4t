@@ -1,70 +1,105 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
     <script src="c4t.js"></script>
     <link rel="stylesheet" type="text/css" href="style.css">
     <title>Connect 4 Takeover</title>
   </head>
 <body>
-  <div class="divcenterofpage">
-    <div class="center">
-      <h1>Connect 4 Takeover</h1>
-      <p><a href="rules.html">Rules</a></p>
-      <div class="green buttonbox" id="playergreen" style="padding-top: 15px;">
-        <button onclick="shapeButton(1)" class="green circle" id="1"></button>
-        <button onclick="shapeButton(2)" class="green triangle" id="2"></button>
-        <button onclick="shapeButton(3)" class="green rectangle" id="3"></button>
-        <button onclick="shapeButton(4)" class="green square" id="4"></button>
-      </div>
-      <div class="green buttonbox" id="greenNumsBox">
-        <input class="green center" id="greenNums" type="text" readonly="true" value ="4         3         2         1" ></input>
-      </div>
-      <div class="buttonbox">
-        <button onclick="gridButton(11)" id="11"></button>
-        <button onclick="gridButton(21)" id="21"></button>
-        <button onclick="gridButton(31)" id="31"></button>
-        <button onclick="gridButton(41)" id="41"></button>
-        <button onclick="gridButton(51)" id="51"></button>
-      </div>
-      <div class="buttonbox">
-        <button onclick="gridButton(12)" id="12"></button>
-        <button onclick="gridButton(22)" id="22"></button>
-        <button onclick="gridButton(32)" id="32"></button>
-        <button onclick="gridButton(42)" id="42"></button>
-        <button onclick="gridButton(52)" id="52"></button>
-      </div>
-      <div class="buttonbox">
-        <button onclick="gridButton(13)" id="13"></button>
-        <button onclick="gridButton(23)" id="23"></button>
-        <button onclick="gridButton(33)" id="33"></button>
-        <button onclick="gridButton(43)" id="43"></button>
-        <button onclick="gridButton(53)" id="53"></button>
-      </div>
-      <div class="buttonbox">
-        <button onclick="gridButton(14)" id="14"></button>
-        <button onclick="gridButton(24)" id="24"></button>
-        <button onclick="gridButton(34)" id="34"></button>
-        <button onclick="gridButton(44)" id="44"></button>
-        <button onclick="gridButton(54)" id="54"></button>
-      </div>
-      <div class="buttonbox">
-        <button onclick="gridButton(15)" id="15"></button>
-        <button onclick="gridButton(25)" id="25"></button>
-        <button onclick="gridButton(35)" id="35"></button>
-        <button onclick="gridButton(45)" id="45"></button>
-        <button onclick="gridButton(55)" id="55"></button>
-      </div>
-      <div class="buttonbox" id="redNumsBox">
-        <input class="center" id="redNums" type="text" readonly="true" value ="4         3         2         1"></input>        
-      </div>
-      <div class="buttonbox" id="playerred" style="padding-top: 15px; padding-bottom: 20px;">
-        <button onclick="shapeButton(5)" class="red circle" id="5"></button>
-        <button onclick="shapeButton(6)" class="red triangle" id="6"></button>
-        <button onclick="shapeButton(7)" class="red rectangle" id="7"></button>
-        <button onclick="shapeButton(8)" class="red square" id="8"></button>
+  <div class="modal" id="player-modal">
+    <div class="modal-content" id="player-modal-content">
+      <h1 style="padding-top: 0;">Connect 4 Takeover</h1>
+      <p><a href="javascript:void(0)" class="open-rules">Rules</a></p><br>
+      <button class="player-select green" id="players-11">1 Player - Go First</button><br>
+      <button class="player-select red" id="players-12">1 Player - Go Second</button><br>
+      <button class="player-select" id="players-2">2 Players</button>
+    </div>
+  </div>
+
+  <div class="modal" id="rules-modal" style="display:none; padding-top: 0;">
+    <div class="divcenterofpage" style="width: 700px; height: 0;">
+      <div class="center">
+        <span class="close closer">&times;</span>
+        <h1>Rules - Connect 4 Takeover</h1>
+        <p><a href="javascript:void(0);" class="closer">Back to Game</a></p>
+        <h2>Objective</h2>
+          <p class="rulestext">As the name suggests the objective of the game is to get 4 in a row.</p>
+        <h2>The Catch</h2>
+          <p class="rulestext">There are different pieces that can take your opponent's pieces.</p>
+        <h2>On Your Turn</h2>
+          <p class="rulestext">On your turn you will select a piece and then select where you want to put it. When it is your turn the color behind your pieces will show your color.</p>
+        <h2>The Pieces</h2>
+          <p class="rulestext">Circle - You get 4 circles, but they cannot take anything and can be taken by anything except another circle</p>
+          <p class="rulestext">Triangle - You get 3 triangles, and they can take circles but can be taken by rectangles and squares</p>
+          <p class="rulestext">Rectangle - You get 2 rectangles, and they can take circles and triangles but can be taken by a square</p>
+          <p class="rulestext">Square - You only get 1 square, which can't be taken and it can take anything except another square</p>
       </div>
     </div>
   </div>
+
+  <div class="divcenterofpage">
+    <div class="center">
+      <h1>Connect 4 Takeover</h1>
+      <p><a href="javascript:void(0)" class="open-rules">Rules</a></p>
+      <p><a href="javascript:void(0)" id="undo">Undo</a></p>
+      <div class="green buttonbox" id="player-green" style="padding-top: 15px;">
+        <button class="player-pieces green circle" id="green-circle"></button>
+        <button class="player-pieces green triangle" id="green-triangle"></button>
+        <button class="player-pieces green rectangle" id="green-rectangle"></button>
+        <button class="player-pieces green square" id="green-square"></button><br><br>
+        <p class="pieces-left-green green" id="green-circle-left">4</p>
+        <p class="pieces-left-green green" id="green-triangle-left">3</p>
+        <p class="pieces-left-green green" id="green-rectangle-left">2</p>
+        <p class="pieces-left-green green" id="green-square-left">1</p>
+      </div>
+      <div class="buttonbox">
+        <button class="grid-button none" id="11"></button>
+        <button class="grid-button none" id="21"></button>
+        <button class="grid-button none" id="31"></button>
+        <button class="grid-button none" id="41"></button>
+        <button class="grid-button none" id="51"></button>
+      </div>
+      <div class="buttonbox">
+        <button class="grid-button none" id="12"></button>
+        <button class="grid-button none" id="22"></button>
+        <button class="grid-button none" id="32"></button>
+        <button class="grid-button none" id="42"></button>
+        <button class="grid-button none" id="52"></button>
+      </div>
+      <div class="buttonbox">
+        <button class="grid-button none" id="13"></button>
+        <button class="grid-button none" id="23"></button>
+        <button class="grid-button none" id="33"></button>
+        <button class="grid-button none" id="43"></button>
+        <button class="grid-button none" id="53"></button>
+      </div>
+      <div class="buttonbox">
+        <button class="grid-button none" id="14"></button>
+        <button class="grid-button none" id="24"></button>
+        <button class="grid-button none" id="34"></button>
+        <button class="grid-button none" id="44"></button>
+        <button class="grid-button none" id="54"></button>
+      </div>
+      <div class="buttonbox">
+        <button class="grid-button none" id="15"></button>
+        <button class="grid-button none" id="25"></button>
+        <button class="grid-button none" id="35"></button>
+        <button class="grid-button none" id="45"></button>
+        <button class="grid-button none" id="55"></button>
+      </div>
+      <div class="buttonbox" id="player-red" style="padding-top: 15px; padding-bottom: 20px;">
+        <p class="pieces-left-red" id="red-circle-left">4</p>
+        <p class="pieces-left-red" id="red-triangle-left">3</p>
+        <p class="pieces-left-red" id="red-rectangle-left">2</p>
+        <p class="pieces-left-red" id="red-square-left">1</p><br><br>
+        <button class="player-pieces red circle" id="red-circle"></button>
+        <button class="player-pieces red triangle" id="red-triangle"></button>
+        <button class="player-pieces red rectangle" id="red-rectangle"></button>
+        <button class="player-pieces red square" id="red-square"></button>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

@@ -1,125 +1,189 @@
 * {
-	background-color: darkslateblue;
+  background-color: darkslateblue;
 }
 
 h1 {
-	background-color: #fff;
-	color: darkblue;
-	padding-top: 15px;
-	font-size: 40px;
-	margin-bottom: 0;
+  background-color: #fff;
+  color: darkblue;
+  padding-top: 15px;
+  font-size: 40px;
+  margin-bottom: 0;
 }
 
 h2 {
-	background-color: #fff;
-	color: darkblue;
-	padding-top: 10px;
-	font-size: 30px;
-	margin: 0;
+  background-color: #fff;
+  color: darkblue;
+  padding-top: 10px;
+  font-size: 30px;
+  margin: 0;
 }
 
 p {
-	background-color: #fff;
-	color: darkblue;
-	font-size: 20px;
-	margin: 0;
-	padding-bottom: 15px;
-	padding-top: 5px;
+  background-color: #fff;
+  color: darkblue;
+  font-size: 20px;
+  margin: 0;
+  padding-bottom: 15px;
+  padding-top: 5px;
 }
 
 button {
-	background-color: black;
-	font-size: 15px;
-	height: 75px;
-	width: 75px;
-	margin-right: 10px;
+  background-color: black;
+  font-size: 15px;
+  height: 75px;
+  width: 75px;
+  margin-right: 10px;
 }
 
 input {
-	background-color: white;
-	border: 0px;
-	font-size: 30px;
-	width: 60%;
-	color: darkblue;
+  background-color: white;
+  border: 0px;
+  font-size: 30px;
+  width: 60%;
+  color: darkblue;
 }
 
 a:link{
-	color: darkblue;
-	background-color: #fff;
+  color: darkblue;
+  background-color: #fff;
 }
 
 a:visited{
-	color: darkblue;
-	background-color: #fff;
+  color: darkblue;
+  background-color: #fff;
 }
 
 a:hover{
-	color: darkslateblue;
-	background-color: #fff;
+  color: darkslateblue;
+  background-color: #fff;
 }
 
 a:active{
-	color: darkblue;
-	background-color: #fff;
+  color: darkblue;
+  background-color: #fff;
 }
 
 .center {
-	text-align: center;
-	position: center;
-	margin: auto;
+  text-align: center;
+  position: center;
+  margin: auto;
 }
 
 .divcenterofpage {
-	background-color: #fff;
-	position: center;
-	width: 600px;
-	height: 100%;
-	margin: auto;
+  background-color: #fff;
+  width: 600px;
+  height: 100%;
+  margin: auto;
 }
 
 .buttonbox {
-	background: #fff;
-	padding-top: 7.5px;
-	padding-bottom: 7.5px;
+  background: #fff;
+  padding-top: 7.5px;
+  padding-bottom: 7.5px;
 }
 
 .green {
-	background-color: darkgreen;
+  background-color: darkgreen !important;
 }
 
 .red {
-	background-color: #c00;
+  background-color: #c00 !important;
 }
 
 .circle {
-	background-image: url('circle.png');
-	background-repeat: no-repeat;
-	background-position: center; 
+  background-image: url('images/circle.png');
+  background-repeat: no-repeat;
+  background-position: center; 
 }
 
 .triangle {
-	background-image: url('triangle.png');
-	background-repeat: no-repeat;
-	background-position: center; 
+  background-image: url('images/triangle.png');
+  background-repeat: no-repeat;
+  background-position: center; 
 }
 
 .rectangle {
-	background-image: url('rectangle.png');
-	background-repeat: no-repeat;
-	background-position: center; 
+  background-image: url('images/rectangle.png');
+  background-repeat: no-repeat;
+  background-position: center; 
 }
 
 .square {
-	background-image: url('square.png');
-	background-repeat: no-repeat;
-	background-position: center; 
+  background-image: url('images/square.png');
+  background-repeat: no-repeat;
+  background-position: center; 
 }
 
 .select {
-	border: 5px solid black;
+  border: 5px solid black;
 }
 
 .rulestext {
-	padding-right: 15px;
-	padding-left:  15px;
+  padding-right: 15px;
+  padding-left:  15px;
+}
+
+.pieces-left-green,.pieces-left-red {
+  display: inline;
+  background-color: #fff;
+  font-size: 30px;
+  padding: 0;
+  margin-right: 35px;
+  margin-left: 35px;
+}
+
+.winner {
+  background-color: gold !important;
+}
+
+.modal {
+  display: block;
+  position: fixed;
+  z-index: 1;
+  padding-top: 100px;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0,0,0);
+  background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+
+.close {
+  color: black;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  background-color: white;
+}
+
+.close:hover,
+.close:focus {
+  color: #aaaaaa;
+  text-decoration: none;
+  cursor: pointer;
+  background-color: white;
+}
+
+#player-modal-content {
+  width: 30%;
+  text-align: center;
+}
+
+.player-select {
+  background-color: darkslateblue;
+  color: white;
+  width: 60%;
+  font-size: 20px;
+  margin-bottom: 10px;
+  font-weight: bold;
 }
